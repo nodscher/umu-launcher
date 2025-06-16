@@ -487,23 +487,9 @@ def get_steam_appid(env: MutableMapping) -> int:
     """Get the Steam app ID from the host environment variables."""
     steam_appid: int = 0
 
-    if path := env.get("STEAM_COMPAT_TRANSCODED_MEDIA_PATH"):
-        # Suppress cases when value is not a number or empty tuple
-        with suppress(ValueError, IndexError):
-            return int(Path(path).parts[-1])
-
-    if path := env.get("STEAM_COMPAT_MEDIA_PATH"):
-        with suppress(ValueError, IndexError):
-            return int(Path(path).parts[-2])
-
-    if path := env.get("STEAM_FOSSILIZE_DUMP_PATH"):
-        with suppress(ValueError, IndexError):
-            return int(Path(path).parts[-3])
-
-    if path := env.get("DXVK_STATE_CACHE_PATH"):
-        with suppress(ValueError, IndexError):
-            return int(Path(path).parts[-2])
-
+    if gameId := env.get("SteamGameId"):
+        return int(gameId)>>32
+    
     return steam_appid
 
 
