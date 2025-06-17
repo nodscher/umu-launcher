@@ -294,6 +294,9 @@ def build_command(
     shim: Path = local.joinpath("umu-shim")
     proton: Path = Path(env["PROTONPATH"], "proton")
     entry_point: Path = local.joinpath("umu")
+    steam_wrapper: Path = os.path.expanduser("~/.local/share/Steam/ubuntu12_32/steam-launch-wrapper")
+    steam_reaper: Path = os.path.expanduser("~/.local/share/Steam/ubuntu12_32/reaper")
+    appId: str = "AppId=" + str(get_steam_appid(env))
 
     if env.get("UMU_NO_PROTON") != "1" and not proton.is_file():
         err: str = "The following file was not found in PROTONPATH: proton"
@@ -337,11 +340,15 @@ def build_command(
         return proton, env["PROTON_VERB"], env["EXE"], *opts
 
     return (
+        steam_wrapper,
+        "--",
+        steam_reaper,
+        "SteamLaunch",
+        appId,
         entry_point,
         "--verb",
         env["PROTON_VERB"],
         "--",
-        shim,
         proton,
         env["PROTON_VERB"],
         env["EXE"],
@@ -618,10 +625,7 @@ def run_command(command: tuple[Path | str, ...]) -> int:
     )
     # Note: STEAM_MULTIPLE_XWAYLANDS is steam mode specific and is
     # documented to be a legacy env var.
-    is_steammode: bool = (
-        is_gamescope_session and os.environ.get("STEAM_MULTIPLE_XWAYLANDS") == "1"
-    )
-
+    is_steammode: bool = False
     if not command:
         err: str = f"Command list is empty or None: {command}"
         raise ValueError(err)
@@ -864,7 +868,7 @@ def umu_run(args: Namespace | tuple[str, list[str]]) -> int:
 
     # Build the command
     command: tuple[Path | str, ...] = build_command(env, UMU_LOCAL / version[1], opts)
-    log.debug("%s", command)
+    log.info("%s", command)
 
     # Run the command
     return run_command(command)
