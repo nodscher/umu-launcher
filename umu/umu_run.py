@@ -290,8 +290,8 @@ def build_command(
     shim: Path = local.joinpath("umu-shim")
     proton: Path = Path(env["PROTONPATH"], "proton")
     entry_point: Path = local.joinpath("umu")
-    steam_wrapper: Path = os.path.expanduser("~/.local/share/Steam/ubuntu12_32/steam-launch-wrapper")
-    steam_reaper: Path = os.path.expanduser("~/.local/share/Steam/ubuntu12_32/reaper")
+    steam_wrapper: Path = Path(os.path.expanduser("~/.local/share/Steam/ubuntu12_32/steam-launch-wrapper"))
+    steam_reaper: Path = Path(os.path.expanduser("~/.local/share/Steam/ubuntu12_32/reaper"))
     appId: str = "AppId=" + str(get_steam_appid(env))
 
     if env.get("UMU_NO_PROTON") != "1" and not proton.is_file():
@@ -335,8 +335,11 @@ def build_command(
         log.warning("Runtime Platform disabled")
         return proton, env["PROTON_VERB"], env["EXE"], *opts
     
-    if env.get("TEST") == "1":
+    test = os.environ.get("TEST", "")
+    if test == "1":
         return (
+            steam_wrapper,
+            "--",
             steam_reaper,
             "SteamLaunch",
             appId,
@@ -349,7 +352,7 @@ def build_command(
             env["EXE"],
             *opts,
         )
-    elif env.get("TEST") == "2":
+    elif test == "2":
         return (
             steam_reaper,
             "SteamLaunch",
@@ -364,7 +367,7 @@ def build_command(
             env["EXE"],
             *opts,
         )
-    elif env.get("TEST") == "3":
+    elif test == "3":
         return (
             steam_wrapper,
             "--",
@@ -372,6 +375,22 @@ def build_command(
             "SteamLaunch",
             appId,
             "--",
+            entry_point,
+            "--verb",
+            env["PROTON_VERB"],
+            "--",
+            proton,
+            env["PROTON_VERB"],
+            env["EXE"],
+            *opts,
+        )
+    elif test == "4":
+        return (
+            str(steam_wrapper),
+            "--",
+            str(steam_reaper),
+            "SteamLaunch",
+            appId,
             entry_point,
             "--verb",
             env["PROTON_VERB"],
@@ -383,8 +402,6 @@ def build_command(
         )
     else:
         return (
-            steam_wrapper,
-            "--",
             steam_reaper,
             "SteamLaunch",
             appId,
