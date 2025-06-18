@@ -400,6 +400,29 @@ def build_command(
             env["EXE"],
             *opts,
         )
+    elif test == "5":
+        return (
+            entry_point,
+            "--verb",
+            env["PROTON_VERB"],
+            "--",
+            shim,
+            proton,
+            env["PROTON_VERB"],
+            env["EXE"],
+            *opts,
+        )
+    elif test == "6":
+        return (
+            entry_point,
+            "--verb",
+            env["PROTON_VERB"],
+            "--",
+            proton,
+            env["PROTON_VERB"],
+            env["EXE"],
+            *opts,
+        )
     else:
         return (
             steam_reaper,
