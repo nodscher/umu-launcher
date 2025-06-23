@@ -636,7 +636,7 @@ def run_command(command: tuple[Path | str, ...]) -> int:
     # Note: STEAM_MULTIPLE_XWAYLANDS is steam mode specific and is
     # documented to be a legacy env var.
     is_steammode: bool = (
-        is_gamescope_session and os.environ.get("STEAM_MULTIPLE_XWAYLANDS") == "1" and is_flatpak
+        is_gamescope_session and os.environ.get("STEAM_MULTIPLE_XWAYLANDS") == "1" and is_flatpak and os.environ.get("TEST") != "1"
     )
 
     if not command:
